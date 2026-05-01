@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot" // Wait, I don't have radix installed. I will use standard element.
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
