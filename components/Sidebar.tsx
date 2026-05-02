@@ -42,7 +42,7 @@ const perfilBadge: Record<string, { label: string; icon: any; color: string }> =
 export default function Sidebar() {
   const pathname  = usePathname();
   const router    = useRouter();
-  const [usuario, setUsuario] = useState<{ nome: string; email: string; perfil: string } | null>(null);
+  const [usuario, setUsuario] = useState<{ nome: string; email: string; perfil: string; foto_url?: string } | null>(null);
 
   useEffect(() => {
     const refreshUser = () => {
