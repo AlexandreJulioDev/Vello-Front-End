@@ -24,7 +24,8 @@ export default function AdminLoginPage() {
     try {
       const response = await api.post('/auth/login', {
         email,
-        senha: password, 
+        senha: password,
+        id_provedor: 1 
       });
 
       const { access_token, usuario } = response.data;
