@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Wifi, Zap, Shield, MapPin, Phone, MessageCircle, ChevronRight, CheckCircle2, Users, Globe, Star, ArrowRight, Menu, X, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { api } from '@/lib/api';
 
 export default function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -16,9 +17,8 @@ export default function LandingPage() {
 
   // Tenta carregar planos reais do backend
   useEffect(() => {
-    fetch('http://localhost:3001/planos')
-      .then(res => res.json())
-      .then(data => { if (data?.length > 0) setPlanos(data); })
+    api.get('/planos')
+      .then(res => { if (res.data?.length > 0) setPlanos(res.data); })
       .catch(() => {/* usa dados padrão */});
   }, []);
 
