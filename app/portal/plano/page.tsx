@@ -11,6 +11,7 @@ export default function PortalPlanoPage() {
   const [contrato, setContrato] = useState<any>(null);
   const [planos, setPlanos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -29,6 +30,31 @@ export default function PortalPlanoPage() {
     }
     load();
   }, []);
+
+  const contratarPlano = async (plano: any) => {
+    if (!confirm(`Deseja contratar o plano ${plano.nome} agora?`)) return;
+
+    setSubmitting(true);
+    try {
+      const user = JSON.parse(localStorage.getItem('vello_user') || '{}');
+      
+      await api.post('/contratos', {
+        id_cliente: user.id,
+        id_plano: plano.id_plano,
+        data_inicio: new Date().toISOString(),
+        dia_vencimento: 10,
+        status: 'ATIVO'
+      });
+
+      alert('Parabéns! Seu plano foi contratado com sucesso.');
+      window.location.reload(); // Recarrega para mostrar o novo contrato
+    } catch (err) {
+      console.error("Erro ao contratar:", err);
+      alert('Ocorreu um erro ao processar sua contratação. Tente novamente ou use o WhatsApp.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) return <div className="flex items-center justify-center h-[50vh]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
 
@@ -104,13 +130,13 @@ export default function PortalPlanoPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {planos.map((plano) => (
-            <Card key={plano.id_plano} className="relative overflow-hidden group hover:border-primary/50 transition-all">
+            <Card key={plano.id_plano} className="relative overflow-hidden group hover:border-primary/50 transition-all flex flex-col">
               <CardHeader>
                 <CardTitle>{plano.nome}</CardTitle>
                 <p className="text-2xl font-black text-primary">R$ {Number(plano.preco).toFixed(2).replace('.', ',')}</p>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm text-muted-foreground">
+              <CardContent className="flex-1 flex flex-col">
+                <div className="space-y-2 text-sm text-muted-foreground mb-6">
                   <p className="flex items-center gap-2 text-foreground">
                     <Zap className="h-4 w-4 text-primary" /> {plano.velocidade_down} Mega Download
                   </p>
@@ -121,12 +147,33 @@ export default function PortalPlanoPage() {
                     <Shield className="h-4 w-4" /> {plano.fidelidade_meses} meses fidelidade
                   </p>
                 </div>
-                <Button 
-                  className="w-full mt-6" 
-                  onClick={() => window.open(`https://wa.me/5511940000000?text=Olá! Acabei de me cadastrar e quero contratar o plano ${plano.nome}`, '_blank')}
-                >
-                  Contratar Agora
-                </Button>
+                
+                <div className="mt-auto space-y-3">
+                  <Button 
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold" 
+                    onClick={() => contratarPlano(plano)}
+                    disabled={submitting}
+                  >
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    Contratar Agora
+                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="text-emerald-600 border-emerald-500/20 hover:bg-emerald-50"
+                      onClick={() => window.open(`https://wa.me/5511940000000?text=Olá! Quero tirar dúvidas sobre o plano ${plano.nome}`, '_blank')}
+                    >
+                      WhatsApp
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => window.location.href = 'tel:1140000000'}
+                    >
+                      Ligar
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -135,4 +182,5 @@ export default function PortalPlanoPage() {
     </div>
   );
 }
+
 
