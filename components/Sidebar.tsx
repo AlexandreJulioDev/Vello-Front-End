@@ -94,7 +94,11 @@ export default function Sidebar() {
           <div className="bg-primary/5 border border-primary/10 rounded-xl p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 overflow-hidden">
               {usuario.foto_url ? (
-                <img src={usuario.foto_url} alt="Profile" className="w-full h-full object-cover" />
+                <img 
+                  src={usuario.foto_url.startsWith('http') ? usuario.foto_url : `http://localhost:3001${usuario.foto_url}`} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover" 
+                />
               ) : (
                 usuario.nome?.charAt(0).toUpperCase()
               )}

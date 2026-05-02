@@ -36,31 +36,42 @@ export default function PerfilPage() {
     setLoading(false);
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     setSaving(true);
-    setMessage(null);
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
 
     try {
-      const response = await api.patch('/auth/perfil', formData);
+      const response = await api.post('/auth/upload', formDataUpload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
-      // Atualiza o localStorage
-      const newUser = { ...user, ...response.data };
+      const novaUrl = response.data.url;
+      setFormData(prev => ({ ...prev, foto_url: novaUrl }));
+      
+      // Salva imediatamente no perfil também para garantir
+      await api.patch('/auth/perfil', { ...formData, foto_url: novaUrl });
+      
+      const newUser = { ...user, foto_url: novaUrl };
       localStorage.setItem('vello_user', JSON.stringify(newUser));
       setUser(newUser);
-
-      // Dispara evento para atualizar a Sidebar em tempo real
       window.dispatchEvent(new Event('userProfileUpdated'));
-
-      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
       
-      // Feedback visual e reload suave se necessário
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({ type: 'success', text: 'Foto atualizada com sucesso!' });
     } catch (err) {
-      setMessage({ type: 'error', text: 'Erro ao salvar alterações.' });
+      setMessage({ type: 'error', text: 'Erro ao fazer upload da imagem.' });
     } finally {
       setSaving(false);
     }
+  };
+
+  const getImageUrl = (url: string) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${api.defaults.baseURL}${url}`;
   };
 
   if (loading) {
@@ -87,18 +98,25 @@ export default function PerfilPage() {
             <CardContent className="p-0">
               <div className="h-32 bg-gradient-to-br from-primary to-indigo-600" />
               <div className="px-6 pb-6 text-center -mt-12">
-                <div className="relative inline-block group">
+                <input 
+                  type="file" 
+                  id="avatar-upload" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <label htmlFor="avatar-upload" className="relative inline-block group cursor-pointer">
                   <div className="w-24 h-24 rounded-2xl border-4 border-card bg-secondary flex items-center justify-center overflow-hidden shadow-xl">
                     {formData.foto_url ? (
-                      <img src={formData.foto_url} alt="Profile" className="w-full h-full object-cover" />
+                      <img src={getImageUrl(formData.foto_url)!} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <User className="h-12 w-12 text-muted-foreground" />
                     )}
                   </div>
-                  <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                    <Camera className="text-white h-6 w-6" />
+                  <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {saving ? <Loader2 className="text-white h-6 w-6 animate-spin" /> : <Camera className="text-white h-6 w-6" />}
                   </div>
-                </div>
+                </label>
                 
                 <h3 className="mt-4 text-xl font-bold text-foreground">{user?.nome}</h3>
                 <div className="mt-2 flex justify-center">
@@ -176,17 +194,6 @@ export default function PerfilPage() {
                       className="pl-10 h-11 bg-secondary/50 border-dashed cursor-not-allowed opacity-70"
                     />
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground ml-1">URL da Foto de Perfil</label>
-                  <Input 
-                    value={formData.foto_url}
-                    onChange={(e) => setFormData({...formData, foto_url: e.target.value})}
-                    className="h-11"
-                    placeholder="https://exemplo.com/suafoto.jpg"
-                  />
-                  <p className="text-[10px] text-muted-foreground mt-1">Dica: Use um link de imagem do Google Drive, Dropbox ou similar.</p>
                 </div>
 
                 <div className="pt-4 flex justify-end">
