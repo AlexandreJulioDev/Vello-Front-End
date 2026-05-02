@@ -72,7 +72,7 @@ export default function PortalHomePage() {
               <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
                 <Wifi className="h-6 w-6" />
               </div>
-              <Badge variant={contrato ? "success" : "secondary"}>
+              <Badge variant={contrato ? "success" : "outline"}>
                 {contrato ? "Ativo" : "Sem Plano"}
               </Badge>
             </div>
