@@ -38,13 +38,9 @@ export default function LoginPage() {
         router.push('/admin/dashboard');
       }
     } catch (err: any) {
-      setError('E-mail ou senha incorretos. Tente novamente.');
-      console.warn("API falhou, usando fallback local para teste.");
-      setTimeout(() => {
-        router.push('/admin/dashboard');
-      }, 800);
+      setError(err.response?.data?.message || 'E-mail ou senha incorretos. Tente novamente.');
     } finally {
-      if (error) setLoading(false);
+      setLoading(false);
     }
   };
 

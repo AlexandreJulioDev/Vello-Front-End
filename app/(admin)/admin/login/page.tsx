@@ -40,13 +40,9 @@ export default function AdminLoginPage() {
       
       router.push('/admin/dashboard');
     } catch (err: any) {
-      setError('Credenciais inválidas ou acesso não autorizado.');
-      console.warn("API falhou, usando fallback local para teste.");
-      setTimeout(() => {
-        router.push('/admin/dashboard');
-      }, 800);
+      setError(err.response?.data?.message || 'Credenciais inválidas ou acesso não autorizado.');
     } finally {
-      if (error) setLoading(false);
+      setLoading(false);
     }
   };
 
