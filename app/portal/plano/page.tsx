@@ -6,8 +6,10 @@ import { Loader2, Wifi, Zap, Shield, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function PortalPlanoPage() {
+  const router = useRouter();
   const [contrato, setContrato] = useState<any>(null);
   const [planos, setPlanos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,29 +33,8 @@ export default function PortalPlanoPage() {
     load();
   }, []);
 
-  const contratarPlano = async (plano: any) => {
-    if (!confirm(`Deseja contratar o plano ${plano.nome} agora?`)) return;
-
-    setSubmitting(true);
-    try {
-      const user = JSON.parse(localStorage.getItem('vello_user') || '{}');
-      
-      await api.post('/contratos', {
-        id_cliente: user.id,
-        id_plano: plano.id_plano,
-        data_inicio: new Date().toISOString(),
-        dia_vencimento: 10,
-        status: 'ATIVO'
-      });
-
-      alert('Parabéns! Seu plano foi contratado com sucesso.');
-      window.location.reload(); // Recarrega para mostrar o novo contrato
-    } catch (err) {
-      console.error("Erro ao contratar:", err);
-      alert('Ocorreu um erro ao processar sua contratação. Tente novamente ou use o WhatsApp.');
-    } finally {
-      setSubmitting(false);
-    }
+  const contratarPlano = (plano: any) => {
+    router.push(`/portal/contratar/${plano.id_plano}`);
   };
 
   if (loading) return <div className="flex items-center justify-center h-[50vh]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
