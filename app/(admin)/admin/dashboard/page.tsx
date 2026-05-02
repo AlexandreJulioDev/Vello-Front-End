@@ -49,7 +49,9 @@ export default function DashboardPage() {
       <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-black text-foreground tracking-tight">Visão Geral</h2>
-          <p className="text-muted-foreground mt-1 text-lg">Métricas em tempo real da sua operação.</p>
+          <p className="text-muted-foreground mt-1 text-lg">
+            {isAdmin ? 'Métricas gerenciais da sua operação.' : 'Acompanhamento de atendimentos e chamados.'}
+          </p>
         </div>
         <div className="bg-secondary/50 px-4 py-2 rounded-lg border border-border backdrop-blur-sm flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -57,7 +59,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Card 1: Total Clientes (Todos vêem) */}
         <Card className="relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -74,6 +77,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Card 2: Planos Ativos (Todos vêem) */}
         <Card className="relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -88,9 +92,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Card Financeiro - Apenas para Admins */}
-        {isAdmin && (
-          <Card className="relative overflow-hidden group">
+        {/* Card 3: DINÂMICO (Faturamento para Admin / Instalações para Técnico) */}
+        {isAdmin ? (
+          <Card className="relative overflow-hidden group border-primary/20">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Faturamento</CardTitle>
@@ -103,29 +107,46 @@ export default function DashboardPage() {
                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(stats?.faturamento) || 0)}
               </div>
               <p className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
-                <ArrowUpRight className="h-3 w-3" /> +4.5% este mês
+                <ArrowUpRight className="h-3 w-3" /> +4.5%
               </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="relative overflow-hidden group">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Instalações</CardTitle>
+              <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black text-foreground">08</div>
+              <p className="text-xs text-blue-500 font-medium mt-2">Agendadas para hoje</p>
             </CardContent>
           </Card>
         )}
 
-        <Card className="relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        {/* Card 4: Atendimentos/Manutenções (Destaque para Técnico) */}
+        <Card className={`relative overflow-hidden group ${!isAdmin ? 'border-orange-500/30 bg-orange-500/5' : ''}`}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Atendimentos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              {isAdmin ? 'Atendimentos' : 'Manutenções'}
+            </CardTitle>
             <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500">
               <Activity className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-black text-foreground">14</div>
-            <p className="text-xs text-orange-500 font-medium mt-2">Chamados em aberto</p>
+            <p className="text-xs text-orange-500 font-medium mt-2">
+              {isAdmin ? 'Chamados em aberto' : 'Chamados na sua fila'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Gráfico de Receita - Apenas para Admins */}
+        {/* Área Principal Dinâmica */}
         {isAdmin ? (
           <Card className="lg:col-span-2">
             <CardHeader>
@@ -135,29 +156,47 @@ export default function DashboardPage() {
             <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0">
               <p className="text-muted-foreground font-medium flex items-center gap-2">
                 <Activity className="h-5 w-5" />
-                Gráfico de Receita (Em breve)
+                Gráfico de Receita (Visão Gerencial)
               </p>
             </CardContent>
           </Card>
         ) : (
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 border-primary/20">
             <CardHeader>
-              <CardTitle>Atividades do Dia</CardTitle>
-              <CardDescription>Resumo das suas tarefas pendentes</CardDescription>
+              <CardTitle>Sua Agenda Técnica</CardTitle>
+              <CardDescription>Ordens de serviço e instalações prioritárias</CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0 text-center p-6">
-              <div>
-                <Activity className="h-10 w-10 text-primary/40 mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">Você não possui atividades agendadas para hoje.</p>
-              </div>
+            <CardContent className="p-0">
+               <div className="divide-y divide-border">
+                  {[
+                    { id: 'OS-1022', cliente: 'Lucas Mendes', tipo: 'Instalação Fibra', hora: '09:00', bairro: 'Centro' },
+                    { id: 'OS-1025', cliente: 'Bia Oliveira', tipo: 'Reparo de Sinal', hora: '10:30', bairro: 'Vila Nova' },
+                    { id: 'OS-1030', cliente: 'Cond. Aurora', tipo: 'Manutenção CTO', hora: '14:00', bairro: 'Jardins' },
+                  ].map((item) => (
+                    <div key={item.id} className="p-4 hover:bg-secondary/30 transition-colors flex items-center justify-between group cursor-pointer">
+                      <div className="flex items-center gap-4">
+                        <div className="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded">{item.hora}</div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{item.cliente}</p>
+                          <p className="text-xs text-muted-foreground">{item.tipo} • {item.bairro}</p>
+                        </div>
+                      </div>
+                      <div className="text-xs font-mono text-muted-foreground group-hover:text-primary">{item.id}</div>
+                    </div>
+                  ))}
+               </div>
+               <div className="p-4 border-t border-border bg-secondary/20 text-center">
+                  <button className="text-xs font-bold text-primary hover:underline">Ver agenda completa</button>
+               </div>
             </CardContent>
           </Card>
         )}
 
+        {/* Sidebar do Dashboard (Chamados Recentes) */}
         <Card>
           <CardHeader>
-            <CardTitle>Últimos Atendimentos</CardTitle>
-            <CardDescription>Chamados recentes</CardDescription>
+            <CardTitle>Suporte Recente</CardTitle>
+            <CardDescription>Últimas interações</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -167,8 +206,8 @@ export default function DashboardPage() {
                     <Activity className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">Instalação Fibra</p>
-                    <p className="text-xs text-muted-foreground">Cliente #{100 + i}</p>
+                    <p className="text-sm font-medium text-foreground">Suporte Técnico</p>
+                    <p className="text-xs text-muted-foreground">Cliente #{200 + i}</p>
                   </div>
                   <div className="ml-auto text-xs font-medium px-2 py-1 bg-orange-500/10 text-orange-500 rounded-full">
                     Pendente
