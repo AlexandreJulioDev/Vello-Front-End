@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Lock, Mail, Loader2, AlertCircle, ArrowLeft, Wifi, MessageCircle, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ export default function ClienteLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +23,11 @@ export default function ClienteLoginPage() {
     setError('');
 
     try {
+      const id_provedor = searchParams.get('provedor') || '1';
       const response = await api.post('/auth/login', {
         email,
-        senha: password, 
+        senha: password,
+        id_provedor: Number(id_provedor)
       });
 
       const { access_token, usuario } = response.data;
