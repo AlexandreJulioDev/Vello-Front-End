@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { Loader2, Wifi, Zap, Shield, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function PortalPlanoPage() {
   const [contrato, setContrato] = useState<any>(null);
