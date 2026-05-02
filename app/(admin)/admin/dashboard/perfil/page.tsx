@@ -36,6 +36,28 @@ export default function PerfilPage() {
     setLoading(false);
   }, []);
 
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+
+    try {
+      const response = await api.patch('/auth/perfil', formData);
+      
+      const newUser = { ...user, ...response.data };
+      localStorage.setItem('vello_user', JSON.stringify(newUser));
+      setUser(newUser);
+      window.dispatchEvent(new Event('userProfileUpdated'));
+
+      setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Erro ao salvar alterações.' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
