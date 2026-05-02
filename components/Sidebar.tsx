@@ -9,12 +9,12 @@ export default function Sidebar() {
   const router = useRouter();
 
   const menuItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
-    { name: 'Contratos', href: '/dashboard/contratos', icon: FileText },
-    { name: 'Rede', href: '/dashboard/rede', icon: Wifi },
-    { name: 'Suporte', href: '/dashboard/suporte', icon: HelpCircle },
-    { name: 'Configurações', href: '/dashboard/config', icon: Settings },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+    { name: 'Clientes', href: '/admin/dashboard/clientes', icon: Users },
+    { name: 'Contratos', href: '/admin/dashboard/contratos', icon: FileText },
+    { name: 'Rede', href: '/admin/dashboard/rede', icon: Wifi },
+    { name: 'Suporte', href: '/admin/dashboard/suporte', icon: HelpCircle },
+    { name: 'Configurações', href: '/admin/dashboard/config', icon: Settings },
   ];
 
   const handleLogout = () => {
@@ -22,7 +22,7 @@ export default function Sidebar() {
       localStorage.removeItem('vello_token');
       localStorage.removeItem('@Vello:token');
       localStorage.removeItem('vello_user');
-      router.push('/login');
+      router.push('/admin/login');
     }
   };
 
@@ -41,7 +41,7 @@ export default function Sidebar() {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Menu Principal</p>
         <nav className="flex-1 space-y-1.5">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            const isActive = pathname === item.href || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
             return (
               <Link key={item.name} href={item.href}>
                 <button className={`w-full flex items-center px-4 py-3 rounded-xl transition-all group ${
