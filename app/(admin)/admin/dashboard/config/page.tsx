@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Save, Users, Building, Bell, Plus, X, Loader2, ShieldCheck, Wrench, HeadphonesIcon, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Save, Users, Building, Bell, Plus, X, Loader2, ShieldCheck, Wrench, HeadphonesIcon, Eye, EyeOff, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/lib/api';
+
+const PERFIS_ADMIN = ['DONO', 'GERENTE'];
 
 // ─── Tipos que espelham o schema Prisma ───────────────────────
 type Funcionario = {
@@ -42,6 +45,9 @@ const perfilAdmLabels = {
 type TipoModal = 'funcionario' | 'admin' | null;
 
 export default function ConfigPage() {
+  const router = useRouter();
+  const [autorizado, setAutorizado] = useState<boolean | null>(null);
+
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [admins, setAdmins]             = useState<Administrador[]>([]);
   const [loadingEquipe, setLoadingEquipe] = useState(true);
@@ -69,7 +75,38 @@ export default function ConfigPage() {
     }
   }
 
-  useEffect(() => { carregarEquipe(); }, []);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('vello_user');
+      const user = raw ? JSON.parse(raw) : null;
+      if (!user || !PERFIS_ADMIN.includes(user.perfil)) {
+        // Redireciona sem acesso
+        router.replace('/admin/dashboard');
+        setAutorizado(false);
+        return;
+      }
+      setAutorizado(true);
+      carregarEquipe();
+    } catch {
+      router.replace('/admin/dashboard');
+    }
+  }, []);
+
+  // Aguardando verificação de permissão
+  if (autorizado === null) return null;
+
+  // Tela de acesso negado (renderiza brevemente antes do redirect)
+  if (autorizado === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+          <Lock className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Acesso Negado</h2>
+        <p className="text-muted-foreground max-w-sm">Você não tem permissão para acessar as Configurações. Esta área é exclusiva para Administradores.</p>
+      </div>
+    );
+  }
 
   function abrirModal(tipo: TipoModal) {
     setShowModal(tipo);
