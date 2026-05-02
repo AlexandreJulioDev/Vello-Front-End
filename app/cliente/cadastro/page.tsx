@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { User, Mail, Lock, Phone, CreditCard, Calendar, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import Link from 'next/link';
 
 export default function CadastroCientePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -47,6 +48,8 @@ export default function CadastroCientePage() {
     setLoading(true);
 
     try {
+      const id_provedor = searchParams.get('provedor') || '1';
+
       const response = await api.post('/auth/register', {
         nome: form.nome,
         email: form.email,
@@ -54,6 +57,7 @@ export default function CadastroCientePage() {
         cpf: form.cpf,
         telefone: form.telefone,
         data_nascimento: form.data_nascimento,
+        id_provedor: Number(id_provedor),
       });
 
       const { access_token, usuario } = response.data;
