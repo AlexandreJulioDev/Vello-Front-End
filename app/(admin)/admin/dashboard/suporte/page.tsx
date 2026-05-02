@@ -96,7 +96,7 @@ export default function SuportePage() {
                   </div>
                   <h4 className="font-bold text-foreground text-sm line-clamp-1">{ticket.titulo}</h4>
                   <div className="mt-3 flex items-center justify-between text-xs">
-                    <Link href={`/dashboard/clientes/${ticket.cliente?.id_cliente}`} className="text-primary hover:underline font-medium">
+                    <Link href={`/admin/dashboard/clientes/${ticket.cliente?.id_cliente}`} className="text-primary hover:underline font-medium">
                       {ticket.cliente?.nome}
                     </Link>
                     <span className="text-muted-foreground">{new Date(ticket.criado_em).toLocaleDateString('pt-BR')}</span>
@@ -125,7 +125,7 @@ export default function SuportePage() {
                   </div>
                   <h4 className="font-bold text-foreground text-sm line-clamp-1">{ticket.titulo}</h4>
                   <div className="mt-3 flex items-center justify-between text-xs">
-                    <Link href={`/dashboard/clientes/${ticket.cliente?.id_cliente}`} className="text-primary hover:underline font-medium">
+                    <Link href={`/admin/dashboard/clientes/${ticket.cliente?.id_cliente}`} className="text-primary hover:underline font-medium">
                       {ticket.cliente?.nome}
                     </Link>
                     <span className="text-muted-foreground">{ticket.tipo}</span>

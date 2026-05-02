@@ -63,7 +63,7 @@ export default function ContratosPage() {
         </div>
         
         <div className="flex gap-3">
-          <Link href="/dashboard/contratos/planos">
+          <Link href="/admin/dashboard/contratos/planos">
             <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" /> Gerenciar Planos
             </Button>
@@ -105,7 +105,7 @@ export default function ContratosPage() {
                 <tr key={contrato.id_contrato} className="hover:bg-muted/50 transition-colors">
                   <td className="px-6 py-4 text-sm font-mono text-muted-foreground">#{contrato.id_contrato}</td>
                   <td className="px-6 py-4 font-bold text-foreground hover:text-primary cursor-pointer transition-colors">
-                    <Link href={`/dashboard/clientes/${contrato.cliente?.id_cliente}`}>
+                    <Link href={`/admin/dashboard/clientes/${contrato.cliente?.id_cliente}`}>
                       {contrato.cliente?.nome}
                     </Link>
                   </td>

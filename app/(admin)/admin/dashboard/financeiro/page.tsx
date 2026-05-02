@@ -129,7 +129,7 @@ export default function FinanceiroPage() {
                     <div className="text-xs text-muted-foreground font-mono">#{fatura.id_fatura}</div>
                   </td>
                   <td className="px-6 py-4 font-bold text-foreground hover:text-primary cursor-pointer transition-colors">
-                    <Link href={`/dashboard/clientes/${fatura.cliente?.id_cliente}`}>
+                    <Link href={`/admin/dashboard/clientes/${fatura.cliente?.id_cliente}`}>
                       {fatura.cliente?.nome}
                     </Link>
                   </td>

@@ -35,13 +35,13 @@ export default function LoginPage() {
       if (usuario?.perfil === 'CLIENTE') {
         router.push('/portal');
       } else {
-        router.push('/dashboard');
+        router.push('/admin/dashboard');
       }
     } catch (err: any) {
       setError('E-mail ou senha incorretos. Tente novamente.');
       console.warn("API falhou, usando fallback local para teste.");
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/admin/dashboard');
       }, 800);
     } finally {
       if (error) setLoading(false);

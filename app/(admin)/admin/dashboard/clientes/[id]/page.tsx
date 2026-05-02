@@ -75,7 +75,7 @@ export default function ClienteDetailsPage() {
     return (
       <div className="p-8 text-center text-muted-foreground">
         <p>Cliente não encontrado.</p>
-        <Button onClick={() => router.push('/dashboard/clientes')} variant="outline" className="mt-4">
+        <Button onClick={() => router.push('/admin/dashboard/clientes')} variant="outline" className="mt-4">
           Voltar para Clientes
         </Button>
       </div>
@@ -87,7 +87,7 @@ export default function ClienteDetailsPage() {
       <Button 
         variant="ghost" 
         className="mb-6 gap-2 text-muted-foreground hover:text-foreground"
-        onClick={() => router.push('/dashboard/clientes')}
+        onClick={() => router.push('/admin/dashboard/clientes')}
       >
         <ArrowLeft className="h-4 w-4" /> Voltar para lista
       </Button>
