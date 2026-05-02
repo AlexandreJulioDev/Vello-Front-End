@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Lock, Mail, Loader2, AlertCircle, ShieldCheck, Activity, Users, Network } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, ShieldCheck, Activity, Users, Network, Eye, EyeOff } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import Link from 'next/link';
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -140,6 +141,7 @@ export default function AdminLoginPage() {
                   type="email"
                   required
                   className="pl-12 h-14 bg-[#10233D]/50 border-[#1C3654] text-white placeholder:text-[#527094] rounded-xl focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:border-cyan-500 transition-all hover:bg-[#10233D]/80"
+                  style={{ WebkitBoxShadow: '0 0 0px 1000px #10233D inset', WebkitTextFillColor: 'white' }}
                   placeholder="voce@provedor.com.br"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -159,13 +161,21 @@ export default function AdminLoginPage() {
                   <Lock className="h-5 w-5 text-[#527094] group-focus-within:text-cyan-400 transition-colors" />
                 </div>
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
-                  className="pl-12 h-14 bg-[#10233D]/50 border-[#1C3654] text-white placeholder:text-[#527094] rounded-xl focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:border-cyan-500 transition-all hover:bg-[#10233D]/80"
+                  className="pl-12 pr-12 h-14 bg-[#10233D]/50 border-[#1C3654] text-white placeholder:text-[#527094] rounded-xl focus-visible:ring-1 focus-visible:ring-cyan-500 focus-visible:border-cyan-500 transition-all hover:bg-[#10233D]/80"
+                  style={{ WebkitBoxShadow: '0 0 0px 1000px #10233D inset', WebkitTextFillColor: 'white' }}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <button 
+                  type="button" 
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#527094] hover:text-cyan-400 transition-colors"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
