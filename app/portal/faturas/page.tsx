@@ -17,12 +17,7 @@ export default function PortalFaturasPage() {
         const res = await api.get('/faturas');
         setFaturas(res.data);
       } catch {
-        setFaturas([
-          { id_fatura: 1, mes_referencia: "05/2026", valor: 99.90, status: "PENDENTE", data_vencimento: "2026-05-10", pix_copia_cola: "00020126580014br.gov.bcb..." },
-          { id_fatura: 2, mes_referencia: "04/2026", valor: 99.90, status: "PAGO", data_vencimento: "2026-04-10", data_pagamento: "2026-04-08" },
-          { id_fatura: 3, mes_referencia: "03/2026", valor: 99.90, status: "PAGO", data_vencimento: "2026-03-10", data_pagamento: "2026-03-09" },
-          { id_fatura: 4, mes_referencia: "02/2026", valor: 99.90, status: "PAGO", data_vencimento: "2026-02-10", data_pagamento: "2026-02-10" },
-        ]);
+        setFaturas([]);
       } finally {
         setLoading(false);
       }

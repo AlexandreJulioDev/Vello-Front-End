@@ -29,16 +29,10 @@ export default function PortalHomePage() {
           faturas: faturasRes.data,
         });
       } catch (err) {
-        console.warn("Portal: usando dados de demonstração", err);
+        console.warn("Portal: erro ao carregar dados", err);
         setDados({
-          contratos: [
-            { id_contrato: 101, plano: { nome: "Fibra 500 Mega Premium", velocidade_down: 500, velocidade_up: 250, preco: 99.90 }, status: "ATIVO", data_inicio: "2025-06-01" }
-          ],
-          faturas: [
-            { id_fatura: 1, mes_referencia: "05/2026", valor: 99.90, status: "PENDENTE", data_vencimento: "2026-05-10" },
-            { id_fatura: 2, mes_referencia: "04/2026", valor: 99.90, status: "PAGO", data_vencimento: "2026-04-10" },
-            { id_fatura: 3, mes_referencia: "03/2026", valor: 99.90, status: "PAGO", data_vencimento: "2026-03-10" },
-          ]
+          contratos: [],
+          faturas: []
         });
       } finally {
         setLoading(false);
