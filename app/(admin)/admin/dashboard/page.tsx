@@ -8,15 +8,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [perfil, setPerfil] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadStats() {
       try {
+        const raw = localStorage.getItem('vello_user');
+        if (raw) {
+          const user = JSON.parse(raw);
+          setPerfil(user.perfil);
+        }
+
         const response = await api.get('/dashboard/stats');
         setStats(response.data);
       } catch (error) {
         console.warn("Failed to load stats", error);
-        // Fallback data for visual purposes if backend fails
         setStats({ totalClientes: 1432, planosAtivos: 1390, faturamento: 125430.50 });
       } finally {
         setLoading(false);
@@ -24,6 +30,8 @@ export default function DashboardPage() {
     }
     loadStats();
   }, []);
+
+  const isAdmin = perfil === 'DONO' || perfil === 'GERENTE';
 
   if (loading) {
     return (
@@ -49,7 +57,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mb-8`}>
         <Card className="relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -80,23 +88,26 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Faturamento</CardTitle>
-            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-              <CreditCard className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-black text-foreground">
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(stats?.faturamento) || 0)}
-            </div>
-            <p className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
-              <ArrowUpRight className="h-3 w-3" /> +4.5% este mês
-            </p>
-          </CardContent>
-        </Card>
+        {/* Card Financeiro - Apenas para Admins */}
+        {isAdmin && (
+          <Card className="relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Faturamento</CardTitle>
+              <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                <CreditCard className="h-4 w-4" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-black text-foreground">
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(stats?.faturamento) || 0)}
+              </div>
+              <p className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
+                <ArrowUpRight className="h-3 w-3" /> +4.5% este mês
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -114,18 +125,34 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Receita Mensal</CardTitle>
-            <CardDescription>Acompanhamento do MRR nos últimos 6 meses</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0">
-            <p className="text-muted-foreground font-medium flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Gráfico de Receita (Em breve)
-            </p>
-          </CardContent>
-        </Card>
+        {/* Gráfico de Receita - Apenas para Admins */}
+        {isAdmin ? (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Receita Mensal</CardTitle>
+              <CardDescription>Acompanhamento do MRR nos últimos 6 meses</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0">
+              <p className="text-muted-foreground font-medium flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Gráfico de Receita (Em breve)
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Atividades do Dia</CardTitle>
+              <CardDescription>Resumo das suas tarefas pendentes</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0 text-center p-6">
+              <div>
+                <Activity className="h-10 w-10 text-primary/40 mx-auto mb-4" />
+                <p className="text-muted-foreground font-medium">Você não possui atividades agendadas para hoje.</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

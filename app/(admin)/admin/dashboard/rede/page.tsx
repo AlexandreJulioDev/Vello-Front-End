@@ -1,17 +1,37 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Loader2, Plus, Wifi, Box, MapPin, Server, Activity, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Loader2, Plus, Wifi, Box, MapPin, Server, Activity, CheckCircle2, AlertTriangle, XCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import NovoPontoModal from '@/components/NovoPontoModal';
 
 export default function RedePage() {
+  const router = useRouter();
+  const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [pontos, setPontos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('vello_user');
+      const user = raw ? JSON.parse(raw) : null;
+      const PERFIS_AUTORIZADOS = ['DONO', 'GERENTE', 'TECNICO_EXTERNO'];
+
+      if (!user || !PERFIS_AUTORIZADOS.includes(user.perfil)) {
+        router.replace('/admin/dashboard');
+        setAutorizado(false);
+        return;
+      }
+      setAutorizado(true);
+    } catch {
+      router.replace('/admin/dashboard');
+    }
+  }, [router]);
 
   const loadRede = async () => {
     try {
@@ -51,12 +71,24 @@ export default function RedePage() {
     }
   };
 
-  if (loading) {
+  if (autorizado === null || loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="flex flex-col items-center gap-4 text-primary">
           <Loader2 className="h-10 w-10 animate-spin" />
         </div>
+      </div>
+    );
+  }
+
+  if (autorizado === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+          <Lock className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Acesso Negado</h2>
+        <p className="text-muted-foreground max-w-sm">Esta área é exclusiva para Administradores e Técnicos.</p>
       </div>
     );
   }

@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, LogOut, FileText, Settings, Wifi, HelpCircle, ShieldCheck, Wrench, HeadphonesIcon } from 'lucide-react';
+import { LayoutDashboard, Users, LogOut, FileText, Settings, Wifi, HelpCircle, ShieldCheck, Wrench, HeadphonesIcon, DollarSign } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // ─── Definição de permissões por perfil ──────────────────────
 // DONO / GERENTE (Administrador)  → acesso total
-// TECNICO_EXTERNO                 → Dashboard, Clientes, Rede, Suporte
-// SUPORTE_INTERNO                 → Dashboard, Clientes, Suporte
+// TECNICO_EXTERNO                 → Dashboard, Clientes, Contratos, Rede, Suporte
+// SUPORTE_INTERNO                 → Dashboard, Clientes, Contratos, Suporte
 // CLIENTE                         → bloqueado (redirecionado)
 
 const PERFIS_ADMIN = ['DONO', 'GERENTE'];
@@ -24,10 +24,11 @@ type MenuItem = {
 const ALL_MENU: MenuItem[] = [
   { name: 'Dashboard',     href: '/admin/dashboard',            icon: LayoutDashboard, roles: [...PERFIS_ADMIN, ...PERFIS_FUNC] },
   { name: 'Clientes',      href: '/admin/dashboard/clientes',   icon: Users,           roles: [...PERFIS_ADMIN, ...PERFIS_FUNC] },
-  { name: 'Contratos',     href: '/admin/dashboard/contratos',  icon: FileText,        roles: [...PERFIS_ADMIN, 'TECNICO_EXTERNO'] },
+  { name: 'Contratos',     href: '/admin/dashboard/contratos',  icon: FileText,        roles: [...PERFIS_ADMIN, ...PERFIS_FUNC] }, // Suporte agora vê contratos
+  { name: 'Financeiro',    href: '/admin/dashboard/financeiro', icon: DollarSign,      roles: PERFIS_ADMIN }, // Somente Admins
   { name: 'Rede',          href: '/admin/dashboard/rede',       icon: Wifi,            roles: [...PERFIS_ADMIN, 'TECNICO_EXTERNO'] },
   { name: 'Suporte',       href: '/admin/dashboard/suporte',    icon: HelpCircle,      roles: [...PERFIS_ADMIN, ...PERFIS_FUNC] },
-  { name: 'Configurações', href: '/admin/dashboard/config',     icon: Settings,        roles: PERFIS_ADMIN }, // ← SOMENTE ADMINS
+  { name: 'Configurações', href: '/admin/dashboard/config',     icon: Settings,        roles: PERFIS_ADMIN },
 ];
 
 const perfilBadge: Record<string, { label: string; icon: any; color: string }> = {

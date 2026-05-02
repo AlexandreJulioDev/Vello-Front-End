@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Loader2, Search, Filter, MoreHorizontal, CheckCircle2, AlertTriangle, XCircle, Clock, CreditCard, DollarSign } from 'lucide-react';
+import { Loader2, Search, Filter, MoreHorizontal, CheckCircle2, AlertTriangle, XCircle, Clock, CreditCard, DollarSign, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,30 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
 export default function FinanceiroPage() {
+  const router = useRouter();
+  const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [faturas, setFaturas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem('vello_user');
+      const user = raw ? JSON.parse(raw) : null;
+      const PERFIS_ADMIN = ['DONO', 'GERENTE'];
+
+      if (!user || !PERFIS_ADMIN.includes(user.perfil)) {
+        router.replace('/admin/dashboard');
+        setAutorizado(false);
+        return;
+      }
+      setAutorizado(true);
+    } catch {
+      router.replace('/admin/dashboard');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    if (!autorizado) return;
     async function loadFaturas() {
       try {
         const response = await api.get('/faturas');
@@ -43,12 +64,24 @@ export default function FinanceiroPage() {
     }
   };
 
-  if (loading) {
+  if (autorizado === null || loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="flex flex-col items-center gap-4 text-primary">
           <Loader2 className="h-10 w-10 animate-spin" />
         </div>
+      </div>
+    );
+  }
+
+  if (autorizado === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+          <Lock className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Acesso Negado</h2>
+        <p className="text-muted-foreground max-w-sm">Esta área é exclusiva para Administradores.</p>
       </div>
     );
   }
