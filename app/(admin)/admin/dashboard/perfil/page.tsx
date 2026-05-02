@@ -102,7 +102,7 @@ export default function PerfilPage() {
                 
                 <h3 className="mt-4 text-xl font-bold text-foreground">{user?.nome}</h3>
                 <div className="mt-2 flex justify-center">
-                   <Badge variant="secondary" className="gap-1.5 py-1 px-3">
+                   <Badge variant="outline" className="gap-1.5 py-1 px-3">
                       <Shield className="h-3 w-3 text-primary" />
                       {user?.perfil?.replace('_', ' ')}
                    </Badge>
