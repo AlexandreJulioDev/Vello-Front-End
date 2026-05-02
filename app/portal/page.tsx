@@ -78,22 +78,37 @@ export default function PortalHomePage() {
               <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
                 <Wifi className="h-6 w-6" />
               </div>
-              <Badge variant="success">Ativo</Badge>
+              <Badge variant={contrato ? "success" : "secondary"}>
+                {contrato ? "Ativo" : "Sem Plano"}
+              </Badge>
             </div>
             <CardTitle className="mt-3">Seu Plano</CardTitle>
           </CardHeader>
           <CardContent>
-            <h3 className="text-2xl font-black text-foreground">{contrato?.plano?.nome || 'Fibra 500 Mega'}</h3>
-            <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <p>⬇️ Download: <span className="text-foreground font-semibold">{contrato?.plano?.velocidade_down || 500} Mbps</span></p>
-              <p>⬆️ Upload: <span className="text-foreground font-semibold">{contrato?.plano?.velocidade_up || 250} Mbps</span></p>
-            </div>
-            <div className="mt-4 pt-4 border-t border-border">
-              <span className="text-3xl font-black text-foreground">
-                R$ {Number(contrato?.plano?.preco || 99.90).toFixed(2).replace('.', ',')}
-              </span>
-              <span className="text-muted-foreground font-medium">/mês</span>
-            </div>
+            {contrato ? (
+              <>
+                <h3 className="text-2xl font-black text-foreground">{contrato.plano?.nome}</h3>
+                <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                  <p>⬇️ Download: <span className="text-foreground font-semibold">{contrato.plano?.velocidade_down} Mbps</span></p>
+                  <p>⬆️ Upload: <span className="text-foreground font-semibold">{contrato.plano?.velocidade_up} Mbps</span></p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <span className="text-3xl font-black text-foreground">
+                    R$ {Number(contrato.plano?.preco).toFixed(2).replace('.', ',')}
+                  </span>
+                  <span className="text-muted-foreground font-medium">/mês</span>
+                </div>
+              </>
+            ) : (
+              <div className="py-4">
+                <p className="text-sm text-muted-foreground">Você ainda não possui um plano ativo.</p>
+                <Link href="/portal/plano">
+                  <Button className="w-full mt-6 gap-2" variant="default">
+                    Escolher Plano <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
 
