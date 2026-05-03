@@ -134,11 +134,12 @@ export default function ConfigPage() {
     setFormError('');
     setFormSuccess('');
 
-    const payload = showModal === 'funcionario'
+    const rawPayload = showModal === 'funcionario'
       ? { ...novoFunc, id_provedor: 1 }
       : { ...novoAdm,  id_provedor: 1 };
 
-    // Se estiver editando e a senha estiver vazia, remove ela do payload
+    // Constrói o payload final removendo a senha se estiver vazia durante a edição
+    const payload: any = { ...rawPayload };
     if (membroEditando && !payload.senha) {
       delete payload.senha;
     }
