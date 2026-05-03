@@ -52,7 +52,7 @@ export default function FinanceiroPage() {
       }
     }
     loadFaturas();
-  }, []);
+  }, [autorizado]);
 
   const getStatusBadge = (status: string) => {
     switch(status) {

@@ -53,6 +53,7 @@ export default function ConfigPage() {
   const [loadingEquipe, setLoadingEquipe] = useState(true);
 
   const [showModal, setShowModal]   = useState<TipoModal>(null);
+  const [membroEditando, setMembroEditando] = useState<any>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError]   = useState('');
   const [formSuccess, setFormSuccess] = useState('');
@@ -108,11 +109,23 @@ export default function ConfigPage() {
     );
   }
 
-  function abrirModal(tipo: TipoModal) {
+  function abrirModal(tipo: TipoModal, membro: any = null) {
     setShowModal(tipo);
+    setMembroEditando(membro);
     setFormError('');
     setFormSuccess('');
     setShowSenha(false);
+
+    if (membro) {
+      if (tipo === 'funcionario') {
+        setNovoFunc({ nome: membro.nome, email: membro.email, senha: '', perfil: membro.perfil });
+      } else {
+        setNovoAdm({ nome: membro.nome, email: membro.email, senha: '', perfil: membro.perfil });
+      }
+    } else {
+      setNovoFunc({ nome: '', email: '', senha: '', perfil: 'TECNICO_EXTERNO' });
+      setNovoAdm({  nome: '', email: '', senha: '', perfil: 'GERENTE' });
+    }
   }
 
   async function handleCadastrar(e: React.FormEvent) {
@@ -125,32 +138,46 @@ export default function ConfigPage() {
       ? { ...novoFunc, id_provedor: 1 }
       : { ...novoAdm,  id_provedor: 1 };
 
-    const endpoint = showModal === 'funcionario' ? '/funcionarios' : '/administradores';
+    // Se estiver editando e a senha estiver vazia, remove ela do payload
+    if (membroEditando && !payload.senha) {
+      delete payload.senha;
+    }
+
+    const isEdit = !!membroEditando;
+    const baseEndpoint = showModal === 'funcionario' ? '/funcionarios' : '/administradores';
+    const endpoint = isEdit ? `${baseEndpoint}/${membroEditando.id_funcionario || membroEditando.id_adm}` : baseEndpoint;
     const nomePessoa = showModal === 'funcionario' ? novoFunc.nome : novoAdm.nome;
 
     try {
-      await api.post(endpoint, payload);
-      setFormSuccess(`"${nomePessoa}" cadastrado com sucesso!`);
+      if (isEdit) {
+        await api.patch(endpoint, payload);
+      } else {
+        await api.post(endpoint, payload);
+      }
+      
+      setFormSuccess(`"${nomePessoa}" ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`);
       setNovoFunc({ nome: '', email: '', senha: '', perfil: 'TECNICO_EXTERNO' });
       setNovoAdm({  nome: '', email: '', senha: '', perfil: 'GERENTE' });
       carregarEquipe();
-      setTimeout(() => { setShowModal(null); setFormSuccess(''); }, 2000);
+      setTimeout(() => { setShowModal(null); setFormSuccess(''); setMembroEditando(null); }, 2000);
     } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Erro ao cadastrar. Verifique os dados.');
+      setFormError(err.response?.data?.message || 'Erro ao processar. Verifique os dados.');
     } finally {
       setFormLoading(false);
     }
   }
 
   // ─── Card de membro da equipe ─────────────────────────────
-  function MembroCard({ nome, email, perfil, ativo, labels }: {
-    nome: string; email: string; perfil: string; ativo: boolean;
+  function MembroCard({ membro, labels, tipo }: {
+    membro: any;
     labels: Record<string, { label: string; color: string; icon: any }>;
+    tipo: TipoModal;
   }) {
+    const { nome, email, perfil, ativo } = membro;
     const cfg  = (labels as any)[perfil] || Object.values(labels)[0];
     const Icon = cfg.icon;
     return (
-      <div className="flex items-center gap-4 p-4 rounded-xl border border-border hover:bg-secondary/30 transition-colors">
+      <div className="flex items-center gap-4 p-4 rounded-xl border border-border hover:bg-secondary/30 transition-colors group">
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
           {nome.charAt(0).toUpperCase()}
         </div>
@@ -158,10 +185,21 @@ export default function ConfigPage() {
           <p className="font-semibold text-foreground truncate">{nome}</p>
           <p className="text-sm text-muted-foreground truncate">{email}</p>
         </div>
-        <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${cfg.color}`}>
-          <Icon className="h-3 w-3" /> {cfg.label}
-        </span>
-        <span className={`w-2 h-2 rounded-full shrink-0 ${ativo ? 'bg-green-500' : 'bg-red-500'}`} title={ativo ? 'Ativo' : 'Inativo'} />
+        <div className="flex items-center gap-3">
+          <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border ${cfg.color}`}>
+            <Icon className="h-3 w-3" /> {cfg.label}
+          </span>
+          <span className={`w-2 h-2 rounded-full shrink-0 ${ativo ? 'bg-green-500' : 'bg-red-500'}`} title={ativo ? 'Ativo' : 'Inativo'} />
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => abrirModal(tipo, membro)}
+          >
+            <Wrench className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -230,7 +268,7 @@ export default function ConfigPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {admins.map(a => <MembroCard key={a.id_adm} nome={a.nome} email={a.email} perfil={a.perfil} ativo={a.ativo} labels={perfilAdmLabels} />)}
+                  {admins.map(a => <MembroCard key={a.id_adm} membro={a} labels={perfilAdmLabels} tipo="admin" />)}
                 </div>
               )}
             </CardContent>
@@ -258,7 +296,7 @@ export default function ConfigPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {funcionarios.map(f => <MembroCard key={f.id_funcionario} nome={f.nome} email={f.email} perfil={f.perfil} ativo={f.ativo} labels={perfilFuncLabels} />)}
+                  {funcionarios.map(f => <MembroCard key={f.id_funcionario} membro={f} labels={perfilFuncLabels} tipo="funcionario" />)}
                 </div>
               )}
             </CardContent>
@@ -274,14 +312,18 @@ export default function ConfigPage() {
         </TabsContent>
       </Tabs>
 
-      {/* ─── MODAL CADASTRO ─── */}
+      {/* ─── MODAL CADASTRO / EDIÇÃO ─── */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <div>
-                <h3 className="text-xl font-bold text-foreground">{isFuncionario ? 'Novo Funcionário' : 'Novo Administrador'}</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">Preencha os dados de acesso ao sistema.</p>
+                <h3 className="text-xl font-bold text-foreground">
+                  {membroEditando ? 'Editar' : 'Novo'} {isFuncionario ? 'Funcionário' : 'Administrador'}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {membroEditando ? 'Atualize os dados de acesso.' : 'Preencha os dados de acesso ao sistema.'}
+                </p>
               </div>
               <button onClick={() => setShowModal(null)} className="p-2 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"><X className="h-5 w-5" /></button>
             </div>
@@ -301,9 +343,18 @@ export default function ConfigPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground">Senha de Acesso</label>
+                <label className="text-sm font-semibold text-foreground">
+                  Senha {membroEditando ? '(Deixe em branco para não alterar)' : 'de Acesso'}
+                </label>
                 <div className="relative">
-                  <Input type={showSenha ? 'text' : 'password'} required placeholder="Senha provisória" value={form.senha} onChange={e => setForm((p: any) => ({ ...p, senha: e.target.value }))} className="pr-10" />
+                  <Input 
+                    type={showSenha ? 'text' : 'password'} 
+                    required={!membroEditando} 
+                    placeholder={membroEditando ? "Sua nova senha" : "Senha provisória"} 
+                    value={form.senha} 
+                    onChange={e => setForm((p: any) => ({ ...p, senha: e.target.value }))} 
+                    className="pr-10" 
+                  />
                   <button type="button" onClick={() => setShowSenha(s => !s)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground">
                     {showSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -329,7 +380,8 @@ export default function ConfigPage() {
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1" onClick={() => setShowModal(null)}>Cancelar</Button>
                 <Button type="submit" disabled={formLoading} className="flex-1 gap-2">
-                  {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Cadastrar
+                  {formLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : (membroEditando ? <Save className="h-4 w-4" /> : <Plus className="h-4 w-4" />)} 
+                  {membroEditando ? 'Salvar' : 'Cadastrar'}
                 </Button>
               </div>
             </form>
