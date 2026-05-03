@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Users, LogOut, FileText, Settings, Wifi, HelpCircle, ShieldCheck, Wrench, HeadphonesIcon, DollarSign, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { api } from '@/lib/api';
+
 // ─── Definição de permissões por perfil ──────────────────────
 // DONO / GERENTE (Administrador)  → acesso total
 // TECNICO_EXTERNO                 → Dashboard, Clientes, Contratos, Rede, Suporte
@@ -77,6 +79,12 @@ export default function Sidebar() {
     }
   };
 
+  const getImageUrl = (url: string) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${api.defaults.baseURL}${url}`;
+  };
+
   return (
     <aside className="w-72 bg-card border-r border-border flex flex-col h-screen sticky top-0 transition-all duration-300">
       <div className="p-8 flex items-center justify-between">
@@ -92,10 +100,10 @@ export default function Sidebar() {
       {usuario && (
         <div className="px-6 pb-4">
           <div className="bg-primary/5 border border-primary/10 rounded-xl p-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 overflow-hidden">
+            <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0 overflow-hidden shadow-sm border border-primary/10">
               {usuario.foto_url ? (
                 <img 
-                  src={usuario.foto_url.startsWith('http') ? usuario.foto_url : `http://localhost:3001${usuario.foto_url}`} 
+                  src={getImageUrl(usuario.foto_url)!} 
                   alt="Profile" 
                   className="w-full h-full object-cover" 
                 />
@@ -103,6 +111,7 @@ export default function Sidebar() {
                 usuario.nome?.charAt(0).toUpperCase()
               )}
             </div>
+
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{usuario.nome}</p>
               {badge && (
