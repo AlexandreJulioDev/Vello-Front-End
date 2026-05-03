@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { Loader2, Search, Filter, MoreHorizontal, CheckCircle2, AlertTriangle, XCircle, Clock, CreditCard, DollarSign, Lock } from 'lucide-react';
+import { Loader2, Search, Filter, MoreHorizontal, CheckCircle2, AlertTriangle, XCircle, Clock, CreditCard, DollarSign, Lock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
