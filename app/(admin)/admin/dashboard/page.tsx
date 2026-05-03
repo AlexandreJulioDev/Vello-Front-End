@@ -23,6 +23,10 @@ export default function DashboardPage() {
 
         const response = await api.get('/dashboard/stats');
         setStats(response.data);
+        if (response.data.nomeProvedor) {
+          localStorage.setItem('vello_provider_name', response.data.nomeProvedor);
+          window.dispatchEvent(new Event('storage'));
+        }
       } catch (error) {
         console.warn("Failed to load stats", error);
         setStats({ totalClientes: 0, planosAtivos: 0, faturamento: 0, atendimentos: 0, instalacoes: 0 });

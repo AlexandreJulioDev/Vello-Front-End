@@ -115,7 +115,7 @@ export default function RedePage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase">OLTs Ativas</p>
-                <p className="text-3xl font-black text-foreground">1</p>
+                <p className="text-3xl font-black text-foreground">{pontos.filter(p => p.tipo === 'OLT').length}</p>
               </div>
             </div>
           </CardContent>
@@ -129,12 +129,12 @@ export default function RedePage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase">CTOs Mapeadas</p>
-                <p className="text-3xl font-black text-foreground">24</p>
+                <p className="text-3xl font-black text-foreground">{pontos.filter(p => p.tipo === 'CTO').length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
+        
         <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
@@ -143,7 +143,9 @@ export default function RedePage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-muted-foreground uppercase">Portas Livres</p>
-                <p className="text-3xl font-black text-foreground">128</p>
+                <p className="text-3xl font-black text-foreground">
+                  {pontos.reduce((acc, p) => acc + (p.portas_livres || 0), 0)}
+                </p>
               </div>
             </div>
           </CardContent>

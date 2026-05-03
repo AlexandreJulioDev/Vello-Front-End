@@ -45,12 +45,16 @@ export default function Sidebar() {
   const pathname  = usePathname();
   const router    = useRouter();
   const [usuario, setUsuario] = useState<{ nome: string; email: string; perfil: string; foto_url?: string } | null>(null);
+  const [nomeProvedor, setNomeProvedor] = useState<string>('Carregando...');
 
   useEffect(() => {
     const refreshUser = () => {
       try {
         const raw = localStorage.getItem('vello_user');
         if (raw) setUsuario(JSON.parse(raw));
+
+        const prov = localStorage.getItem('vello_provider_name');
+        if (prov) setNomeProvedor(prov);
       } catch { /* ignorar */ }
     };
 
@@ -148,7 +152,7 @@ export default function Sidebar() {
       <div className="mt-auto p-6 border-t border-border">
         <div className="bg-secondary/50 p-4 rounded-xl mb-4 border border-border/50">
           <p className="text-sm font-medium text-foreground">Provedor Ativo</p>
-          <p className="text-xs text-muted-foreground mt-1">Vello Networks LTDA</p>
+          <p className="text-xs text-muted-foreground mt-1">{nomeProvedor}</p>
         </div>
         <button
           onClick={handleLogout}
