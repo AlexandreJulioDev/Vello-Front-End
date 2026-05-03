@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { api } from '@/lib/api';
-import { Users, Wifi, CreditCard, Activity, ArrowUpRight, Loader2 } from 'lucide-react';
+import { Users, Wifi, CreditCard, Activity, ArrowUpRight, Loader2, Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
