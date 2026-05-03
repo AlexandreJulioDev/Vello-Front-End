@@ -23,7 +23,7 @@ export default function DashboardPage() {
         setStats(response.data);
       } catch (error) {
         console.warn("Failed to load stats", error);
-        setStats({ totalClientes: 1432, planosAtivos: 1390, faturamento: 125430.50 });
+        setStats({ totalClientes: 0, planosAtivos: 0, faturamento: 0, atendimentos: 0, instalacoes: 0 });
       } finally {
         setLoading(false);
       }
@@ -120,7 +120,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-black text-foreground">08</div>
+              <div className="text-4xl font-black text-foreground">{String(stats?.instalacoes || 0).padStart(2, '0')}</div>
               <p className="text-xs text-blue-500 font-medium mt-2">Agendadas para hoje</p>
             </CardContent>
           </Card>
@@ -137,7 +137,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-foreground">14</div>
+            <div className="text-4xl font-black text-foreground">{stats?.atendimentos || 0}</div>
             <p className="text-xs text-orange-500 font-medium mt-2">
               {isAdmin ? 'Chamados em aberto' : 'Chamados na sua fila'}
             </p>

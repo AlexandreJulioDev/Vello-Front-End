@@ -41,12 +41,7 @@ export default function FinanceiroPage() {
         setFaturas(response.data);
       } catch (err) {
         console.warn("Erro ao carregar faturas", err);
-        // Fallback demo data
-        setFaturas([
-          { id_fatura: 501, cliente: { id_cliente: 1, nome: "João Silva" }, valor: 99.90, data_vencimento: "2026-05-10", status: "PENDENTE", mes_referencia: "05/2026" },
-          { id_fatura: 502, cliente: { id_cliente: 2, nome: "Maria Oliveira" }, valor: 79.90, data_vencimento: "2026-04-15", status: "PAGO", mes_referencia: "04/2026", data_pagamento: "2026-04-14", metodo_pagamento: "PIX" },
-          { id_fatura: 503, cliente: { id_cliente: 3, nome: "Carlos Souza" }, valor: 149.90, data_vencimento: "2026-04-05", status: "ATRASADO", mes_referencia: "04/2026" },
-        ]);
+        setFaturas([]);
       } finally {
         setLoading(false);
       }

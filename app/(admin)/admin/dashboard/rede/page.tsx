@@ -39,12 +39,7 @@ export default function RedePage() {
       setPontos(response.data);
     } catch (err) {
       console.warn("Erro ao carregar rede", err);
-      // Fallback demo data
-      setPontos([
-        { id_ponto: 1, nome: "CTO-01 (Centro)", tipo: "CTO", portas_total: 16, portas_livres: 4, status: "OPERANTE", endereco_ref: "Rua Principal, Poste 12", rota: { nome_rota: "Rota Centro-Sul" } },
-        { id_ponto: 2, nome: "OLT-01 (NOC)", tipo: "OLT", portas_total: 64, portas_livres: 12, status: "OPERANTE", endereco_ref: "Datacenter Principal", rota: { nome_rota: "Backbone Core" } },
-        { id_ponto: 3, nome: "CTO-02 (Bairro X)", tipo: "CTO", portas_total: 8, portas_livres: 0, status: "MANUTENCAO", endereco_ref: "Rua das Flores, Poste 45", rota: { nome_rota: "Rota Norte" } },
-      ]);
+      setPontos([]);
     } finally {
       setLoading(false);
     }

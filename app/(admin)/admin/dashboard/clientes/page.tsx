@@ -37,11 +37,7 @@ export default function ClientesPage() {
       setClientes(response.data);
     } catch (err) {
       console.warn("Erro ao carregar a lista de clientes:", err);
-      // Fallback para design/demo
-      setClientes([
-        { id_cliente: 1, nome: "João Silva", email: "joao@example.com", telefone: "(11) 99999-9999", ativo: true, endereco: { cidade: "São Paulo", estado: "SP" } },
-        { id_cliente: 2, nome: "Maria Oliveira", email: "maria@example.com", telefone: "(11) 98888-8888", ativo: false, endereco: { cidade: "Campinas", estado: "SP" } },
-      ]);
+      setClientes([]);
     } finally {
       setLoading(false);
     }

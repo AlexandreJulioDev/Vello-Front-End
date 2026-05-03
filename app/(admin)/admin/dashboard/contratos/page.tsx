@@ -21,11 +21,7 @@ export default function ContratosPage() {
       setContratos(response.data);
     } catch (err) {
       console.warn("Erro ao carregar contratos", err);
-      // Fallback demo data
-      setContratos([
-        { id_contrato: 1001, cliente: { id_cliente: 1, nome: "João Silva" }, plano: { nome: "Fibra 500 Mega", preco: 99.90 }, status: "ATIVO", data_inicio: "2025-01-15", dia_vencimento: 10 },
-        { id_contrato: 1002, cliente: { id_cliente: 2, nome: "Maria Oliveira" }, plano: { nome: "Fibra 200 Mega", preco: 79.90 }, status: "SUSPENSO", data_inicio: "2024-05-20", dia_vencimento: 15 },
-      ]);
+      setContratos([]);
     } finally {
       setLoading(false);
     }

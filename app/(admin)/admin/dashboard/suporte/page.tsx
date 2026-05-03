@@ -23,29 +23,7 @@ export default function SuportePage() {
       setAtendimentos(response.data);
     } catch (err) {
       console.warn("Erro ao carregar atendimentos", err);
-      // Fallback demo data
-      setAtendimentos([
-        { 
-          id_atendimento: 1, 
-          cliente: { id_cliente: 1, nome: "João Silva", telefone: "(11) 98888-7777", endereco: { rua: "Av. Paulista", numero: "1000", bairro: "Bela Vista", cidade: "São Paulo", estado: "SP" } }, 
-          titulo: "Sem internet na fibra", 
-          descricao: "O cliente relata que o LOS do modem está piscando vermelho desde o temporal de ontem.",
-          tipo: "MANUTENCAO", 
-          prioridade: "ALTA", 
-          status: "PENDENTE", 
-          criado_em: new Date().toISOString() 
-        },
-        { 
-          id_atendimento: 2, 
-          cliente: { id_cliente: 4, nome: "Ana Santos", telefone: "(11) 97777-6666", endereco: { rua: "Rua Augusta", numero: "500", bairro: "Consolação", cidade: "São Paulo", estado: "SP" } }, 
-          titulo: "Instalação Nova", 
-          descricao: "Levar cabo de 50 metros. Apartamento 42.",
-          tipo: "INSTALACAO", 
-          prioridade: "MEDIA", 
-          status: "EM_EXECUCAO", 
-          criado_em: new Date().toISOString() 
-        },
-      ]);
+      setAtendimentos([]);
     } finally {
       setLoading(false);
     }
