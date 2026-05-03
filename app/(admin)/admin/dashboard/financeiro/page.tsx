@@ -20,8 +20,26 @@ export default function FinanceiroPage() {
   useEffect(() => {
     const handleClose = () => setOpenMenu(null);
     window.addEventListener('click', handleClose);
+
+    // Verificação de permissão
+    try {
+      const raw = localStorage.getItem('vello_user');
+      const user = raw ? JSON.parse(raw) : null;
+      const PERFIS_ADMIN = ['DONO', 'GERENTE'];
+
+      if (!user || !PERFIS_ADMIN.includes(user.perfil)) {
+        router.replace('/admin/dashboard');
+        setAutorizado(false);
+        return;
+      }
+      setAutorizado(true);
+    } catch {
+      router.replace('/admin/dashboard');
+      setAutorizado(false);
+    }
+
     return () => window.removeEventListener('click', handleClose);
-  }, []);
+  }, [router]);
 
   const loadFaturas = async () => {
     try {
@@ -54,6 +72,18 @@ export default function FinanceiroPage() {
         <div className="flex flex-col items-center gap-4 text-primary">
           <Loader2 className="h-10 w-10 animate-spin" />
         </div>
+      </div>
+    );
+  }
+
+  if (autorizado === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+          <Lock className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-foreground">Acesso Negado</h2>
+        <p className="text-muted-foreground max-w-sm">Esta área é exclusiva para Administradores.</p>
       </div>
     );
   }
