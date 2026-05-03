@@ -48,13 +48,26 @@ export default function Sidebar() {
   const [nomeProvedor, setNomeProvedor] = useState<string>('Carregando...');
 
   useEffect(() => {
-    const refreshUser = () => {
+    const refreshUser = async () => {
       try {
         const raw = localStorage.getItem('vello_user');
-        if (raw) setUsuario(JSON.parse(raw));
+        if (raw) {
+          const user = JSON.parse(raw);
+          setUsuario(user);
 
-        const prov = localStorage.getItem('vello_provider_name');
-        if (prov) setNomeProvedor(prov);
+          const prov = localStorage.getItem('vello_provider_name');
+          if (prov) {
+            setNomeProvedor(prov);
+          } else if (user.id_provedor) {
+            // Se não tem no cache, busca na API
+            const response = await api.get(`/provedores/${user.id_provedor}`);
+            if (response.data?.nome_fantasia) {
+              const name = response.data.nome_fantasia;
+              setNomeProvedor(name);
+              localStorage.setItem('vello_provider_name', name);
+            }
+          }
+        }
       } catch { /* ignorar */ }
     };
 
