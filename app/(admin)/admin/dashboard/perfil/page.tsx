@@ -18,7 +18,8 @@ export default function PerfilPage() {
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
-    foto_url: ''
+    foto_url: '',
+    email: ''
   });
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -30,7 +31,8 @@ export default function PerfilPage() {
       setFormData({
         nome: userData.nome || '',
         telefone: userData.telefone || '',
-        foto_url: userData.foto_url || ''
+        foto_url: userData.foto_url || '',
+        email: userData.email || ''
       });
     }
     setLoading(false);
@@ -207,15 +209,24 @@ export default function PerfilPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground ml-1">E-mail (Somente Leitura)</label>
+                  <label className="text-sm font-bold text-foreground ml-1">
+                    E-mail {isAdmin ? '(Editável)' : '(Somente Leitura)'}
+                  </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/50" />
+                    <Mail className={`absolute left-3 top-3 h-4 w-4 ${isAdmin ? 'text-muted-foreground' : 'text-muted-foreground/50'}`} />
                     <Input 
-                      value={user?.email}
-                      disabled
-                      className="pl-10 h-11 bg-secondary/50 border-dashed cursor-not-allowed opacity-70"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      disabled={!isAdmin}
+                      className={`pl-10 h-11 ${!isAdmin ? 'bg-secondary/50 border-dashed cursor-not-allowed opacity-70' : ''}`}
+                      placeholder="seu-email@vello.com.br"
                     />
                   </div>
+                  {!isAdmin && (
+                    <p className="text-[10px] text-muted-foreground ml-1 mt-1">
+                      Para alterar o e-mail, entre em contato com o administrador.
+                    </p>
+                  )}
                 </div>
 
                 <div className="pt-4 flex justify-end">
