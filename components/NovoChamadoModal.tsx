@@ -18,20 +18,25 @@ export default function NovoChamadoModal({ isOpen, onClose, onSuccess }: ModalPr
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
+    equipamento_desc: '',
     id_cliente: '',
     prioridade: 'MEDIA',
     tipo: 'SUPORTE',
   });
 
   useEffect(() => {
-    if (isOpen) {
-      setClientes([
-        { id_cliente: 1, nome: "João Silva", endereco: "Rua Principal, 123" },
-        { id_cliente: 2, nome: "Maria Oliveira", endereco: "Av. Central, 456" },
-        { id_cliente: 4, nome: "Ana Santos", endereco: "Rua das Flores, 789" },
-      ]);
+    async function loadClientes() {
+      try {
+        const response = await api.get('/clientes');
+        setClientes(response.data);
+      } catch (err) {
+        console.warn("Falha ao carregar clientes", err);
+      }
     }
+    if (isOpen) loadClientes();
   }, [isOpen]);
+
+  const selectedClient = clientes.find(c => String(c.id_cliente) === String(formData.id_cliente));
 
   if (!isOpen) return null;
 
@@ -52,11 +57,7 @@ export default function NovoChamadoModal({ isOpen, onClose, onSuccess }: ModalPr
       onClose();   
       alert("Chamado aberto com sucesso!");
     } catch (err: any) {
-      console.warn("Erro ao abrir chamado", err);
-      // Fallback
-      alert("Sucesso (Modo Fallback): Chamado registrado localmente!");
-      onSuccess();
-      onClose();
+      alert(`Erro ao abrir chamado: ${err.response?.data?.message || "Erro desconhecido"}`);
     } finally {
       setLoading(false);
     }
@@ -80,9 +81,9 @@ export default function NovoChamadoModal({ isOpen, onClose, onSuccess }: ModalPr
           </Button>
         </header>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Cliente</label>
+            <label className="text-sm font-semibold text-foreground">Cliente (Nome / CPF)</label>
             <select 
               required
               className="w-full p-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm"
@@ -91,10 +92,23 @@ export default function NovoChamadoModal({ isOpen, onClose, onSuccess }: ModalPr
             >
               <option value="">Selecione o cliente que precisa de suporte...</option>
               {clientes.map(c => (
-                <option key={c.id_cliente} value={c.id_cliente}>{c.nome} ({c.endereco})</option>
+                <option key={c.id_cliente} value={c.id_cliente}>
+                  {c.nome} - {c.cpf}
+                </option>
               ))}
             </select>
           </div>
+
+          {selectedClient && (
+            <div className="p-3 bg-primary/5 border border-primary/10 rounded-xl animate-in fade-in slide-in-from-top-2">
+              <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Endereço de Instalação</p>
+              <p className="text-sm text-foreground leading-relaxed">
+                {selectedClient.endereco ? 
+                  `${selectedClient.endereco.rua}, ${selectedClient.endereco.numero} - ${selectedClient.endereco.bairro} (${selectedClient.endereco.cidade})` :
+                  'Endereço não cadastrado'}
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-foreground">Assunto (Título)</label>
@@ -135,7 +149,19 @@ export default function NovoChamadoModal({ isOpen, onClose, onSuccess }: ModalPr
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Descrição do Problema</label>
+            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+              Equipamento Utilizado
+              <span className="text-[10px] font-normal text-muted-foreground uppercase">(Opcional)</span>
+            </label>
+            <Input 
+              placeholder="Ex: Modem Nokia G-140W-H / Roteador Intelbras"
+              value={formData.equipamento_desc}
+              onChange={e => setFormData({...formData, equipamento_desc: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-foreground">Descrição do Problema / Relato Técnico</label>
             <textarea 
               required placeholder="Descreva os detalhes do chamado, testes já realizados com o cliente..."
               className="w-full p-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none min-h-[100px] text-sm resize-none"

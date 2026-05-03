@@ -20,9 +20,16 @@ export default function NewClientModal({ isOpen, onClose, onSuccess }: ModalProp
     telefone: '',
     cpf: '',
     data_nascimento: '',
-    endereco: '',
-    id_provedor: 1, // Padrão para o seu teste
-    id_plano: 1,    // Padrão para o seu teste
+    endereco: {
+      rua: '',
+      numero: '',
+      bairro: '',
+      cidade: '',
+      estado: '',
+      cep: '00000-000', // Padrão
+    },
+    id_provedor: 1, 
+    id_plano: 1,    
   });
 
   if (!isOpen) return null;
@@ -36,7 +43,7 @@ export default function NewClientModal({ isOpen, onClose, onSuccess }: ModalProp
         ...formData,
         id_provedor: Number(formData.id_provedor),
         id_plano: Number(formData.id_plano),
-        senha: formData.cpf.replace(/\D/g, ''), // Default password is the CPF
+        senha: formData.cpf.replace(/\D/g, ''), 
       };
 
       await api.post('/clientes', dataToSend);
@@ -45,18 +52,15 @@ export default function NewClientModal({ isOpen, onClose, onSuccess }: ModalProp
       onClose();   
       setFormData({ 
         nome: '', email: '', telefone: '', cpf: '', 
-        data_nascimento: '', endereco: '', id_provedor: 1, id_plano: 1 
+        data_nascimento: '', 
+        endereco: { rua: '', numero: '', bairro: '', cidade: '', estado: '', cep: '00000-000' },
+        id_provedor: 1, id_plano: 1 
       });
 
-      alert("Cliente cadastrado com sucesso! Ele já pode usar o CPF ou E-mail para acessar.");
+      alert("Cliente cadastrado com sucesso!");
 
     } catch (err: any) {
-      const apiError = err.response?.data?.message;
-      const errorMessage = Array.isArray(apiError) 
-        ? apiError.join(' | ') 
-        : "Erro ao cadastrar. Verifique se CPF ou E-mail já existem.";
-
-      alert(`Erro de Validação: ${errorMessage}`);
+      alert(`Erro: ${err.response?.data?.message || "Erro ao cadastrar"}`);
     } finally {
       setLoading(false);
     }
@@ -80,7 +84,7 @@ export default function NewClientModal({ isOpen, onClose, onSuccess }: ModalProp
           </Button>
         </header>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-6 max-h-[80vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
             <div className="md:col-span-2 space-y-1.5">
               <label className="text-sm font-semibold text-foreground">Nome Completo</label>
@@ -131,14 +135,60 @@ export default function NewClientModal({ isOpen, onClose, onSuccess }: ModalProp
               />
             </div>
 
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-sm font-semibold text-foreground">Endereço de Instalação</label>
-              <Input 
-                required
-                placeholder="Rua, número, bairro e cidade"
-                value={formData.endereco}
-                onChange={e => setFormData({...formData, endereco: e.target.value})}
-              />
+            <div className="md:col-span-2 py-2">
+              <div className="text-xs font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="w-8 h-px bg-primary/20"></span>
+                Endereço de Instalação
+                <span className="flex-1 h-px bg-primary/20"></span>
+              </div>
+              
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Rua / Logradouro</label>
+                  <Input 
+                    required
+                    placeholder="Nome da rua"
+                    value={formData.endereco.rua}
+                    onChange={e => setFormData({...formData, endereco: {...formData.endereco, rua: e.target.value}})}
+                  />
+                </div>
+                <div className="col-span-1 space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Nº</label>
+                  <Input 
+                    required
+                    placeholder="123"
+                    value={formData.endereco.numero}
+                    onChange={e => setFormData({...formData, endereco: {...formData.endereco, numero: e.target.value}})}
+                  />
+                </div>
+                <div className="col-span-2 space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Bairro</label>
+                  <Input 
+                    required
+                    placeholder="Bairro"
+                    value={formData.endereco.bairro}
+                    onChange={e => setFormData({...formData, endereco: {...formData.endereco, bairro: e.target.value}})}
+                  />
+                </div>
+                <div className="col-span-1.5 space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">Cidade</label>
+                  <Input 
+                    required
+                    placeholder="Cidade"
+                    value={formData.endereco.cidade}
+                    onChange={e => setFormData({...formData, endereco: {...formData.endereco, cidade: e.target.value}})}
+                  />
+                </div>
+                <div className="col-span-0.5 space-y-1.5">
+                  <label className="text-xs font-bold text-muted-foreground uppercase">UF</label>
+                  <Input 
+                    required maxLength={2}
+                    placeholder="SP"
+                    value={formData.endereco.estado}
+                    onChange={e => setFormData({...formData, endereco: {...formData.endereco, estado: e.target.value.toUpperCase()}})}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
