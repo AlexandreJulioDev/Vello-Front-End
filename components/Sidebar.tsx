@@ -116,7 +116,7 @@ export default function Sidebar() {
               )}
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-foreground truncate">{usuario.nome}</p>
               {badge && (
                 <span className={`flex items-center gap-1 text-xs font-medium ${badge.color}`}>
@@ -124,6 +124,13 @@ export default function Sidebar() {
                 </span>
               )}
             </div>
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all"
+              title="Sair da conta"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
