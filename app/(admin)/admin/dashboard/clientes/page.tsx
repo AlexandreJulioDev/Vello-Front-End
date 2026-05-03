@@ -15,6 +15,9 @@ interface Cliente {
   telefone: string;
   ativo: boolean;
   endereco?: {
+    rua: string;
+    numero: string;
+    bairro: string;
     cidade: string;
     estado: string;
   };
