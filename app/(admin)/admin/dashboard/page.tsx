@@ -153,40 +153,63 @@ export default function DashboardPage() {
               <CardTitle>Receita Mensal</CardTitle>
               <CardDescription>Acompanhamento do MRR nos últimos 6 meses</CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center bg-secondary/20 rounded-xl border border-dashed border-border m-6 mt-0">
-              <p className="text-muted-foreground font-medium flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Gráfico de Receita (Visão Gerencial)
-              </p>
+            <CardContent className="h-[300px] flex items-end justify-between gap-2 px-8 pb-10 pt-6">
+              {stats?.revenueHistory?.map((data: any, idx: number) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-3 h-full justify-end group">
+                  <div 
+                    className="w-full max-w-[40px] bg-primary/20 rounded-t-lg group-hover:bg-primary transition-all duration-500 relative"
+                    style={{ height: `${(data.value / (stats.faturamento || 1)) * 100}%`, minHeight: '10%' }}
+                  >
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl border border-border">
+                      R$ {Number(data.value).toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-muted-foreground uppercase">{data.month}</span>
+                </div>
+              ))}
+              {!stats?.revenueHistory && (
+                <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-border rounded-xl">
+                  <p className="text-muted-foreground text-sm italic">Dados de faturamento indisponíveis</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (
           <Card className="lg:col-span-2 border-primary/20">
-            <CardHeader>
-              <CardTitle>Sua Agenda Técnica</CardTitle>
-              <CardDescription>Ordens de serviço e instalações prioritárias</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Sua Agenda Técnica</CardTitle>
+                <CardDescription>Ordens de serviço e instalações prioritárias</CardDescription>
+              </div>
+              <Link href="/admin/dashboard/suporte">
+                <Button variant="outline" size="sm">Ver tudo</Button>
+              </Link>
             </CardHeader>
             <CardContent className="p-0">
                <div className="divide-y divide-border">
-                  {[
-                    { id: 'OS-1022', cliente: 'Lucas Mendes', tipo: 'Instalação Fibra', hora: '09:00', bairro: 'Centro' },
-                    { id: 'OS-1025', cliente: 'Bia Oliveira', tipo: 'Reparo de Sinal', hora: '10:30', bairro: 'Vila Nova' },
-                    { id: 'OS-1030', cliente: 'Cond. Aurora', tipo: 'Manutenção CTO', hora: '14:00', bairro: 'Jardins' },
-                  ].map((item) => (
-                    <div key={item.id} className="p-4 hover:bg-secondary/30 transition-colors flex items-center justify-between group cursor-pointer">
-                      <div className="flex items-center gap-4">
-                        <div className="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded">{item.hora}</div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">{item.cliente}</p>
-                          <p className="text-xs text-muted-foreground">{item.tipo} • {item.bairro}</p>
+                  {stats?.recentTickets?.filter((t: any) => t.status !== 'CONCLUIDO').length > 0 ? (
+                    stats.recentTickets.filter((t: any) => t.status !== 'CONCLUIDO').map((item: any) => (
+                      <Link key={item.id_atendimento} href="/admin/dashboard/suporte">
+                        <div className="p-4 hover:bg-secondary/30 transition-colors flex items-center justify-between group cursor-pointer">
+                          <div className="flex items-center gap-4">
+                            <div className="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded">
+                              {new Date(item.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-foreground">{item.cliente?.nome}</p>
+                              <p className="text-xs text-muted-foreground">{item.titulo}</p>
+                            </div>
+                          </div>
+                          <div className="text-xs font-mono text-muted-foreground group-hover:text-primary">OS #{item.id_atendimento}</div>
                         </div>
-                      </div>
-                      <div className="text-xs font-mono text-muted-foreground group-hover:text-primary">{item.id}</div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="py-20 text-center">
+                      <Wrench className="h-10 w-10 mx-auto text-muted-foreground/20 mb-3" />
+                      <p className="text-sm text-muted-foreground">Sua agenda está livre para hoje!</p>
                     </div>
-                  ))}
-               </div>
-               <div className="p-4 border-t border-border bg-secondary/20 text-center">
-                  <button className="text-xs font-bold text-primary hover:underline">Ver agenda completa</button>
+                  )}
                </div>
             </CardContent>
           </Card>
@@ -194,26 +217,44 @@ export default function DashboardPage() {
 
         {/* Sidebar do Dashboard (Chamados Recentes) */}
         <Card>
-          <CardHeader>
-            <CardTitle>Suporte Recente</CardTitle>
-            <CardDescription>Últimas interações</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Suporte Recente</CardTitle>
+              <CardDescription>Últimas interações</CardDescription>
+            </div>
+            <Link href="/admin/dashboard/suporte">
+              <Button variant="ghost" size="sm" className="text-xs font-bold text-primary">Ver todos</Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
-                    <Activity className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Suporte Técnico</p>
-                    <p className="text-xs text-muted-foreground">Cliente #{200 + i}</p>
-                  </div>
-                  <div className="ml-auto text-xs font-medium px-2 py-1 bg-orange-500/10 text-orange-500 rounded-full">
-                    Pendente
-                  </div>
+              {stats?.recentTickets?.length > 0 ? (
+                stats.recentTickets.map((ticket: any) => (
+                  <Link key={ticket.id_atendimento} href="/admin/dashboard/suporte">
+                    <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-secondary/50 transition-colors cursor-pointer group mb-2">
+                      <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                        <Activity className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{ticket.titulo}</p>
+                        <p className="text-xs text-muted-foreground truncate">{ticket.cliente?.nome}</p>
+                      </div>
+                      <div className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                        ticket.status === 'PENDENTE' ? 'bg-orange-500/10 text-orange-500' : 
+                        ticket.status === 'EM_EXECUCAO' ? 'bg-blue-500/10 text-blue-500' : 
+                        'bg-emerald-500/10 text-emerald-500'
+                      }`}>
+                        {ticket.status}
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="text-center py-10">
+                  <Activity className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+                  <p className="text-xs text-muted-foreground">Nenhum chamado recente</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>

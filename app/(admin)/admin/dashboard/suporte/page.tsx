@@ -112,7 +112,12 @@ export default function SuportePage() {
                       <User className="h-3 w-3" /> <span className="font-medium text-foreground">{ticket.cliente?.nome}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3" /> <span className="truncate">{ticket.cliente?.endereco?.bairro || 'Sem endereço'}</span>
+                      <MapPin className="h-3 w-3" /> 
+                      <span className="truncate">
+                        {ticket.cliente?.endereco ? 
+                          `${ticket.cliente.endereco.rua || ''}, ${ticket.cliente.endereco.numero || ''} - ${ticket.cliente.endereco.bairro || ''}` : 
+                          'Sem endereço'}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
