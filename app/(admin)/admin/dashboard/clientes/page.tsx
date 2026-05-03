@@ -33,6 +33,13 @@ export default function ClientesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleClose = () => setOpenMenu(null);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, []);
 
   const fetchClientes = useCallback(async () => {
     try {
@@ -143,10 +150,64 @@ export default function ClientesPage() {
                       {cliente.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <td className="px-6 py-4 text-right relative">
+                    <div className="flex justify-end">
+                      <Button 
+                        variant="ghost" size="icon" 
+                        className="text-muted-foreground hover:text-primary transition-colors h-8 w-8 rounded-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenu(openMenu === cliente.id_cliente ? null : cliente.id_cliente);
+                        }}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {openMenu === cliente.id_cliente && (
+                      <div className="absolute right-6 top-12 w-48 bg-card border border-border rounded-xl shadow-xl z-50 py-1.5 animate-in fade-in zoom-in-95 duration-100 text-left">
+                        <div className="px-3 py-1.5 text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest border-b border-border/50 mb-1">
+                          Ações do Cliente
+                        </div>
+                        <button 
+                          onClick={() => window.location.href = `/admin/dashboard/clientes/${cliente.id_cliente}`}
+                          className="w-full flex items-center px-3 py-2 text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors text-left"
+                        >
+                          Ver Perfil Completo
+                        </button>
+                        <button 
+                          onClick={() => { setIsModalOpen(true); }}
+                          className="w-full flex items-center px-3 py-2 text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors text-left"
+                        >
+                          Abrir Chamado (OS)
+                        </button>
+                        <div className="h-px bg-border/50 my-1"></div>
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await api.patch(`/clientes/${cliente.id_cliente}`, { ativo: !cliente.ativo });
+                              fetchClientes();
+                            } catch (err) { alert("Erro ao mudar status"); }
+                          }}
+                          className={`w-full flex items-center px-3 py-2 text-sm transition-colors text-left ${cliente.ativo ? 'text-orange-500 hover:bg-orange-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
+                        >
+                          {cliente.ativo ? 'Inativar Cliente' : 'Reativar Cliente'}
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("Tem certeza que deseja excluir este cliente?")) {
+                              try {
+                                await api.delete(`/clientes/${cliente.id_cliente}`);
+                                fetchClientes();
+                              } catch (err) { alert("Erro ao excluir"); }
+                            }
+                          }}
+                          className="w-full flex items-center px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left font-medium"
+                        >
+                          Excluir Assinante
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               )) : (

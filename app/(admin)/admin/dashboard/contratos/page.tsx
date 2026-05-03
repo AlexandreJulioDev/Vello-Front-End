@@ -14,6 +14,13 @@ export default function ContratosPage() {
   const [contratos, setContratos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleClose = () => setOpenMenu(null);
+    window.addEventListener('click', handleClose);
+    return () => window.removeEventListener('click', handleClose);
+  }, []);
 
   const loadContratos = async () => {
     try {
@@ -113,10 +120,58 @@ export default function ContratosPage() {
                   <td className="px-6 py-4">
                     {getStatusBadge(contrato.status)}
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <td className="px-6 py-4 text-right relative">
+                    <div className="flex justify-end">
+                      <Button 
+                        variant="ghost" size="icon" 
+                        className="text-muted-foreground hover:text-primary transition-colors h-8 w-8 rounded-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenu(openMenu === contrato.id_contrato ? null : contrato.id_contrato);
+                        }}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {openMenu === contrato.id_contrato && (
+                      <div className="absolute right-6 top-12 w-48 bg-card border border-border rounded-xl shadow-xl z-50 py-1.5 animate-in fade-in zoom-in-95 duration-100 text-left">
+                        <div className="px-3 py-1.5 text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest border-b border-border/50 mb-1">
+                          Gestão de Contrato
+                        </div>
+                        <Link href={`/admin/dashboard/clientes/${contrato.cliente?.id_cliente}`}>
+                          <button className="w-full flex items-center px-3 py-2 text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors text-left">
+                            Ver Cadastro do Cliente
+                          </button>
+                        </Link>
+                        <div className="h-px bg-border/50 my-1"></div>
+                        <button 
+                          onClick={async () => {
+                            try {
+                              const novoStatus = contrato.status === 'ATIVO' ? 'SUSPENSO' : 'ATIVO';
+                              await api.patch(`/contratos/${contrato.id_contrato}`, { status: novoStatus });
+                              loadContratos();
+                            } catch (err) { alert("Erro ao mudar status"); }
+                          }}
+                          className={`w-full flex items-center px-3 py-2 text-sm transition-colors text-left ${contrato.status === 'ATIVO' ? 'text-orange-500 hover:bg-orange-500/10' : 'text-emerald-500 hover:bg-emerald-500/10'}`}
+                        >
+                          {contrato.status === 'ATIVO' ? 'Suspender Serviço' : 'Reativar Serviço'}
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("Deseja realmente cancelar este contrato?")) {
+                              try {
+                                await api.patch(`/contratos/${contrato.id_contrato}`, { status: 'CANCELADO' });
+                                loadContratos();
+                              } catch (err) { alert("Erro ao cancelar"); }
+                            }
+                          }}
+                          className="w-full flex items-center px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left font-medium"
+                        >
+                          Cancelar Assinatura
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
